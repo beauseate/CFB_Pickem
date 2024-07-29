@@ -1,1 +1,4 @@
-./virtualenv_cfb
+/venv
+/__pycache__
+/CFB_Data/TestingSpreadsheet.xlsx
+apikey.txt
