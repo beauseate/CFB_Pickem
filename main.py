@@ -3,11 +3,10 @@ main.py
 """
 import datetime
 from cfbd_api import CFBD_API
-from excel import Excel
+from sheet import Sheet
 
+sheet_name = "Testing of Pigskin Pandemonium Pick 'em 2024"
 
-spreadsheet = 'CFB_Data\\TestingSpreadsheet.xlsx'
-sheet_name = 'Schedule'
 CUR_YEAR = datetime.date.today().year
 
 def validate_number(num):
@@ -32,14 +31,17 @@ def main():
     week = int(week)
 
     cfbd_api = CFBD_API(year, week)
-    excel = Excel(spreadsheet, sheet_name)
+    sheet = Sheet(auth="CFPRef.json", sheet_name=sheet_name)
+
     print('Please wait while we update the scores...')
-    print(excel.get_weeks_matchups(week=week))
-    for matchup in excel.get_weeks_matchups(week=week):
+    for matchup in sheet.get_weeks_matchups(week=week):
         away_team = matchup['Away Team']
         home_team = matchup['Home Team']
         game_score = cfbd_api.get_game_score(away_team, home_team)
-        excel.update_score(game_score, away_team, home_team)
+        sheet.update_score(game_score, away_team, home_team)
+    sheet.save_sheet()
+    sheet.highlight_winning_team()
+
 
     print('Scores updated!')
 

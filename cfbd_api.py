@@ -1,5 +1,4 @@
 import cfbd
-import datetime
 import logging
 import urllib3
 
