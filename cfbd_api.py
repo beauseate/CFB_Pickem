@@ -20,7 +20,7 @@ class CFBD_API():
         
         self.games_api = cfbd.GamesApi(cfbd.ApiClient(configuration))
         self.year = year
-        self.week= week
+        self.week = week
 
     def get_cur_week_fbs_games(self, away_team='', home_team=''):
          return self.games_api.get_games(year=self.year,
