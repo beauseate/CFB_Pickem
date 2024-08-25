@@ -38,6 +38,3 @@ class CFBD_API():
     def get_game_score(self, away_team, home_team):
         game_data = self.get_game_data(away_team, home_team)
         return [{'home_points': attr.home_points, 'away_points': attr.away_points} for attr in game_data][0]
-
-    
-    

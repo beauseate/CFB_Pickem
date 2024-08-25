@@ -2,10 +2,11 @@
 main.py
 """
 import datetime
-from cfbd_api import CFBD_API
-from schedule import Schedule
 import sheet_utils
 import common_utils
+from cfbd_api import CFBD_API
+from schedule import Schedule
+from individual_scoresheet import IndividualScoreSheet
 
 CUR_YEAR = datetime.date.today().year
 
@@ -22,11 +23,19 @@ def main():
     week = input("Enter the week of CFB: ")
     week = common_utils.validate_number(week)
 
+    auth = sheet_utils.get_service_account()
+    sheet_name = sheet_utils.get_name()
     cfbd_api = CFBD_API(year, week)
-    schedule_sheet = Schedule(auth=sheet_utils.get_service_account(),
-                              sheet_name=sheet_utils.get_name(),
-                              cfbd_api=cfbd_api)
-    schedule_sheet.update_schedule()
+
+    schedule_sheet = Schedule(auth=auth, sheet_name=sheet_name, worksheet='Schedule', cfbd_api=cfbd_api)
+    schedule_sheet.update_schedule_scores()
+
+    individual_score_sheet = IndividualScoreSheet(auth=auth,
+                                                  sheet_name=sheet_name,
+                                                  worksheet='',
+                                                  cfbd_api=cfbd_api,
+                                                  total_score=0)
+    individual_score_sheet.update_individual_scoreshet()
     print("Complete!")
 
 if __name__ == "__main__":
@@ -34,6 +43,3 @@ if __name__ == "__main__":
         main()
     except Exception as exception:
         raise SystemExit(f"Error: {exception}") from exception
-
-
-
