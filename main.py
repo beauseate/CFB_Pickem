@@ -6,11 +6,14 @@ import sheet_utils
 import common_utils
 from cfbd_api import CFBD_API
 from schedule import Schedule
+from sheet import Sheet
 from individual_scoresheet import IndividualScoreSheet
+from scoreboard import Scoreboard
 
 CUR_YEAR = datetime.date.today().year
 
 def main():
+    scores_dict = {}
     ans = input(f"Would you like to enter a different year than {CUR_YEAR}? (y/n): ")
     while ans not in ('y', 'n'):
         print("Please select a valid option")
@@ -27,15 +30,27 @@ def main():
     sheet_name = sheet_utils.get_name()
     cfbd_api = CFBD_API(year, week)
 
-    schedule_sheet = Schedule(auth=auth, sheet_name=sheet_name, worksheet='Schedule', cfbd_api=cfbd_api)
-    schedule_sheet.update_schedule_scores()
+    schedule_sheet = Schedule(auth=auth, sheet_name=sheet_name, cfbd_api=cfbd_api)
+    schedule_sheet.update_schedule()
 
-    individual_score_sheet = IndividualScoreSheet(auth=auth,
-                                                  sheet_name=sheet_name,
-                                                  worksheet='',
-                                                  cfbd_api=cfbd_api,
-                                                  total_score=0)
-    individual_score_sheet.update_individual_scoreshet()
+    sheet = Sheet(auth=auth,  sheet_name=sheet_name)
+    worksheets = sheet.spreadsheet.worksheets()
+
+    # scoreboard = Scoreboard(auth=auth, sheet_name=sheet_name, cfbd_api=cfbd_api)
+    for worksheet in worksheets:
+        worksheet_name = worksheet.title
+        if (worksheet_name == 'Schedule') or (worksheet_name == 'Scoreboard'):
+            continue
+
+        individual_score_sheet = IndividualScoreSheet(auth=auth,
+                                                      sheet_name=sheet_name,
+                                                      worksheet=worksheet_name,
+                                                      cfbd_api=cfbd_api)
+        individual_score_sheet.update_individual_scoreshet()
+        weeks_score = individual_score_sheet.get_weeks_score()
+        scores_dict[worksheet_name] = weeks_score
+    # scoreboard.calculate_scoreboard(scores_dict)
+    
     print("Complete!")
 
 if __name__ == "__main__":

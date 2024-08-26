@@ -19,22 +19,31 @@ class CFBD_API():
         configuration.api_key_prefix['Authorization'] = 'Bearer'
         
         self.games_api = cfbd.GamesApi(cfbd.ApiClient(configuration))
+        self.betting_api = cfbd.BettingApi(cfbd.ApiClient(configuration))
         self.year = year
         self.week = week
-
-    def get_cur_week_fbs_games(self, away_team='', home_team=''):
-         return self.games_api.get_games(year=self.year,
-                                         week=self.week,
-                                         away=away_team,
-                                         home=home_team
-                                        )
     
+    def get_number_of_games_up_to_week(self):
+        total_games = 0
+        for i in range(1, self.week+1):
+            total_games += len(self.games_api.get_games(year=self.year, week=i, division='fbs'))
+
+        return total_games
+
     def get_game_data(self, away_team, home_team):
         """
-        Gets gam data of Away @ Home team
+        Gets game data of Away @ Home team
         """
-        return self.get_cur_week_fbs_games(away_team, home_team)
+        return self.games_api.get_games(year=self.year,
+                                        week=self.week,
+                                        division='fbs',
+                                        away=away_team,
+                                        home=home_team)
     
     def get_game_score(self, away_team, home_team):
         game_data = self.get_game_data(away_team, home_team)
         return [{'home_points': attr.home_points, 'away_points': attr.away_points} for attr in game_data][0]
+    
+    def get_game_spread(self, week, away_team, home_team):
+        print(self.betting_api.get_lines(year=self.year, week=week, away=away_team, home=home_team)[0].lines[0].formatted_spread)
+        return self.betting_api.get_lines(year=self.year, week=week, away=away_team, home=home_team)[0].lines[0].formatted_spread

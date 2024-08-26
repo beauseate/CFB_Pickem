@@ -16,10 +16,9 @@ logging.basicConfig(
 
 class Sheet():
 
-    def __init__(self, auth, sheet_name, worksheet):
+    def __init__(self, auth, sheet_name):
         scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
         creds = ServiceAccountCredentials.from_json_keyfile_name(auth, scope)
         client = gspread.authorize(creds)
-        self.sheet = client.open(sheet_name)
+        self.spreadsheet = client.open(sheet_name)
         self.log = logging.getLogger(__name__)
-        self.worksheet = self.sheet.worksheet(worksheet)
