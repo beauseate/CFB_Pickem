@@ -1,5 +1,5 @@
 """
-main.py
+cfb_pickem.py
 """
 from schedule import Schedule
 from individual_scoresheet import IndividualScoreSheet
