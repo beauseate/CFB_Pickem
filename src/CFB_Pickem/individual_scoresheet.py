@@ -85,7 +85,8 @@ class IndividualScoreSheet(ScoreSheet):
             self.batch_update.append((f'F{index}', ligt_red_hightlight))
             self.batch_update.append((f'G{index}', ligt_red_hightlight))
     
-    def set_individual_sheet_df(self):
+    def save_individual_scoresheet(self):
+        print(f"Saving {self.worksheet.title}'s worksheet...")
         set_with_dataframe(self.worksheet, self.pandas_df)
 
     def do_batch_update(self):

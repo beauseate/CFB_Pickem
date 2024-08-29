@@ -14,16 +14,13 @@ class Schedule(ScoreSheet):
         records = self.worksheet.get_all_records(head=4)
         self.pandas_df = pd.DataFrame(records)
 
-    def update_schedule(self, matchups, game_scores):
-        print('Updating schedule scores...')
-
-        self.update_pd_this_week_score_frame(matchups, game_scores)
-
+    def update_this_weeks_schedule(self):
         self.set_schedule_df()
         self.highlight_winning_teams()
         print('Schedule updated!')
     
     def update_pd_this_week_score_frame(self, matchups, game_scores):
+        print('Updating schedule scores...')
         for matchup, game_score in zip(matchups, game_scores):
             score_mask = self.get_this_week_mask(matchup['Away Team'], matchup['Home Team'])
             self.pandas_df.loc[score_mask, 'Home Points'] = game_score['home_points']
@@ -45,5 +42,5 @@ class Schedule(ScoreSheet):
         
         format_cell_ranges(self.worksheet, batch_update)
     
-    def set_schedule_df(self):
+    def save_schedule(self):
         set_with_dataframe(self.worksheet, self.pandas_df, row=4, col=1)

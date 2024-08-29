@@ -52,21 +52,14 @@ class ScoreSheet(Sheet):
         print('Getting next weeks game spreads...')
         return [self.cfbd_api.get_game_spread(week, matchup['Away Team'], matchup['Home Team']) for matchup in matchups]
     
-    def update_pd_next_week_spread_frame(self, matchup, spread):
-        spread_mask = self.get_next_week_mask(matchup['Away Team'], matchup['Home Team'])
-        self.pandas_df.loc[spread_mask, 'Spread'] = spread
-    
-    def update_pd_this_week_spread_frame(self, spread, matchup):
-        spread_mask = self.get_this_week_mask(matchup['Away Team'], matchup['Home Team'])
-        self.pandas_df.loc[spread_mask, 'Spread'] = spread
-    
     def update_next_weeks_spread(self, next_weeks_matchups, next_weeks_spreads):
         print('Updating next weeks spread...')
         for matchup, spread in zip(next_weeks_matchups, next_weeks_spreads):
-            self.update_pd_next_week_spread_frame(matchup, spread)
+            next_week_spread_mask = self.get_next_week_mask(matchup['Away Team'], matchup['Home Team'])
+            self.pandas_df.loc[next_week_spread_mask, 'Spread'] = spread
     
-    def update_this_weeks_spread(self):
+    def update_this_weeks_spread(self, this_weeks_matchups, this_weeks_spreads):
         print("Updating this week's spread...")
-        for matchup in self.get_this_weeks_matchups():
-            spread = self.get_this_week_game_spread(self.cfbd_api.week, matchup)
-            self.update_pd_this_week_spread_frame(spread, matchup)
+        for matchup, spread in zip(this_weeks_matchups, this_weeks_spreads):
+            this_week_spread_mask = self.get_this_week_mask(matchup['Away Team'], matchup['Home Team'])
+            self.pandas_df.loc[this_week_spread_mask, 'Spread'] = spread

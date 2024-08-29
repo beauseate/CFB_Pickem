@@ -36,7 +36,7 @@ class CFBPickem():
     def get_scoreboard(self):
         return Scoreboard(auth=self.auth, sheet_name=self.sheet_name, cfbd_api=self.cfbd_api)
     
-    def update_individual_scoresheets(self, worksheets, matchups, game_scores,
+    def update_individual_scoresheets(self, worksheets, this_weeks_matchups, this_weeks_game_scores,
                                       next_weeks_matchups=None, next_weeks_spread=None):
         scores_dict = {}
         for worksheet in worksheets:
@@ -44,7 +44,7 @@ class CFBPickem():
                 continue
 
             individual_score_sheet = self.get_individual_scoresheet(worksheet.title)
-            individual_score_sheet.update_individual_scoresheet(matchups, game_scores)
+            individual_score_sheet.update_individual_scoresheet(this_weeks_matchups, this_weeks_game_scores)
             if next_weeks_matchups:
                 individual_score_sheet.update_next_weeks_spread(next_weeks_matchups, next_weeks_spread)
             weeks_individual_score = individual_score_sheet.get_weeks_score()
@@ -52,7 +52,17 @@ class CFBPickem():
 
         return scores_dict
 
+    def update_individual_scoresheets_spread(self, worksheets, matchups, spread):
+        for worksheet in worksheets:
+            if worksheet.title in ['Schedule', 'Scoreboard']:
+                continue
+            individual_score_sheet = self.get_individual_scoresheet(worksheet.title)
+            individual_score_sheet.update_this_weeks_spread(matchups, spread)
+            individual_score_sheet.save_individual_scoresheet()
+
+
     def update_weeks_scores(self):
+        print("Preparing to update this weeks scores...")
         schedule = self.get_schedule()
 
         this_weeks_matchups = schedule.get_this_weeks_matchups()
@@ -62,7 +72,8 @@ class CFBPickem():
             schedule.update_next_weeks_spread(next_weeks_matchups, next_weeks_spread)
         else:
             next_weeks_spread = None
-        schedule.update_schedule(this_weeks_matchups, this_weeks_game_scores)
+        schedule.update_pd_this_week_score_frame(this_weeks_matchups, this_weeks_game_scores)
+        schedule.update_this_weeks_schedule()
 
         worksheets = schedule.spreadsheet.worksheets()
         scores_dict = self.update_individual_scoresheets(worksheets, this_weeks_matchups, this_weeks_game_scores,
@@ -71,7 +82,19 @@ class CFBPickem():
         scoreboard = self.get_scoreboard()
         scoreboard.update_scoreboard(scores_dict)
         
-        print("Updated weeks scores successfully!")
+        print("Updated this weeks scores successfully!")
 
-    def update_this_weeks_spread():
-        raise NotImplementedError
+    def update_this_weeks_spread(self):
+        print("Preparing to update this weeks spread...")
+        schedule = self.get_schedule()
+
+        this_weeks_matchups = schedule.get_this_weeks_matchups()
+        this_weeks_game_spreads = schedule.get_this_week_game_spread(this_weeks_matchups)
+        
+        schedule.update_this_weeks_spread(this_weeks_matchups, this_weeks_game_spreads)
+        schedule.save_schedule()
+
+        worksheets = schedule.spreadsheet.worksheets()
+        self.update_individual_scoresheets_spread(worksheets, this_weeks_matchups, this_weeks_game_spreads)
+
+        print("Updated this weeks spread successfully!")

@@ -15,8 +15,9 @@ def main():
 
     cfb_pickem = CFBPickem(auth, sheet_name, cfbd_api)
 
+    cfb_pickem.update_this_weeks_spread()
     cfb_pickem.update_weeks_scores()
-
+    
 if __name__ == "__main__":
     try:
         main()
