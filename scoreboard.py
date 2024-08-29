@@ -14,7 +14,7 @@ class Scoreboard(ScoreSheet):
         values = self.worksheet.get_all_values()
         self.pandas_df = pd.DataFrame(values)
 
-    def calculate_scoreboard(self, scores_dict):
+    def update_scoreboard(self, scores_dict):
         week = self.cfbd_api.week
 
         last_weeks_score = self.get_week_score_df(week - 1)

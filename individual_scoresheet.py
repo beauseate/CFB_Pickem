@@ -19,54 +19,47 @@ class IndividualScoreSheet(ScoreSheet):
     
     def get_weeks_score(self):
         return {f'Week {self.cfbd_api.week} Points': self.week_score}
-    
-    def update_individual_scoreshet(self):
+
+    def update_individual_scoresheet(self, matchups, game_scores):
         print(f"Updating {self.worksheet.title}'s individual score...")
-        self.update_this_weeks_spread()
+        self.calc_week_score(matchups, game_scores)
 
-    # def update_individual_scoreshet(self):
-    #     print(f"Updating {self.worksheet.title}'s individual score...")
-    #     for matchup in self.get_weeks_matchups():
-    #         game_score = self.get_game_score(matchup)
-    #         self.calc_week_score(game_score, matchup)
-
-    #     self.update_next_weeks_spread()
-        
         self.set_individual_sheet_df()
-    #     self.do_batch_update()
+        self.do_batch_update()
         print(f"Finished updating {self.worksheet.title}'s individual score!")
   
-    def calc_week_score(self, game_score, matchup):
-        score_mask = self.get_score_mask(matchup['Away Team'], matchup['Home Team'])
-        row = self.pandas_df.loc[score_mask]
+    def calc_week_score(self, matchups, game_scores):
+        for matchup, game_score in zip(matchups, game_scores):
+            score_mask = self.get_this_week_mask(matchup['Away Team'], matchup['Home Team'])
+            row = self.pandas_df.loc[score_mask]
 
-        home_points = game_score['home_points']
-        away_points = game_score['away_points']
+            home_points = game_score['home_points']
+            away_points = game_score['away_points']
 
-        is_home_win = home_points > away_points
-        is_away_win = home_points < away_points
+            is_home_win = home_points > away_points
+            is_away_win = home_points < away_points
 
-        picked_home = row['Pick Home'].iloc[0] == 1
-        picked_away = row['Pick Away'].iloc[0] == 1
+            picked_home = row['Pick Home'].iloc[0] == 1
+            picked_away = row['Pick Away'].iloc[0] == 1
 
-        if (picked_home and picked_away) or (not picked_home and not picked_away):
-            highlight_type = None
+            if (picked_home and picked_away) or (not picked_home and not picked_away):
+                highlight_type = None
 
-        elif is_home_win:
-            if picked_home:
-                self.week_score += 1
-                highlight_type = 'Home_Win'
-            else:
-                highlight_type = 'Home_Loss'
+            elif is_home_win:
+                if picked_home:
+                    self.week_score += 1
+                    highlight_type = 'Home_Win'
+                else:
+                    highlight_type = 'Home_Loss'
 
-        elif is_away_win:
-            if picked_away:
-                self.week_score += 1
-                highlight_type = 'Away_Win'
-            else:
-                highlight_type = 'Away_Loss'
+            elif is_away_win:
+                if picked_away:
+                    self.week_score += 1
+                    highlight_type = 'Away_Win'
+                else:
+                    highlight_type = 'Away_Loss'
 
-        self.highlight_score(row, highlight_type)
+            self.highlight_score(row, highlight_type)
 
     def highlight_score(self, row, type):
         light_green_highlight = CellFormat(backgroundColor=Color(0.8, 1.0, 0.8), textFormat=TextFormat(bold=True))

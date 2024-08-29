@@ -13,31 +13,21 @@ class Schedule(ScoreSheet):
         self.worksheet = self.spreadsheet.worksheet(worksheet)
         records = self.worksheet.get_all_records(head=4)
         self.pandas_df = pd.DataFrame(records)
-    
-    def update_schedule(self):
-        print('Please wait while we update the schedule scores...')
 
-        self.update_this_weeks_spread()
+    def update_schedule(self, matchups, game_scores):
+        print('Updating schedule scores...')
+
+        self.update_pd_this_week_score_frame(matchups, game_scores)
 
         self.set_schedule_df()
+        self.highlight_winning_teams()
         print('Schedule updated!')
-
-    # def update_schedule(self):
-    #     print('Please wait while we update the schedule scores...')
-    #     for matchup in self.get_weeks_matchups():
-    #         game_score = self.get_game_score(matchup)
-    #         self.update_pd_score_frame(game_score, matchup)
-
-    #     self.update_next_weeks_spread()
-
-    #     self.set_schedule_df()
-    #     self.highlight_winning_teams()
-    #     print('Schedule updated!')
     
-    def update_pd_score_frame(self, game_score, matchup):
-        score_mask = self.get_this_week_mask(matchup['Away Team'], matchup['Home Team'])
-        self.pandas_df.loc[score_mask, 'Home Points'] = game_score['home_points']
-        self.pandas_df.loc[score_mask, 'Away Points'] = game_score['away_points']
+    def update_pd_this_week_score_frame(self, matchups, game_scores):
+        for matchup, game_score in zip(matchups, game_scores):
+            score_mask = self.get_this_week_mask(matchup['Away Team'], matchup['Home Team'])
+            self.pandas_df.loc[score_mask, 'Home Points'] = game_score['home_points']
+            self.pandas_df.loc[score_mask, 'Away Points'] = game_score['away_points']
     
     def highlight_winning_teams(self):
         batch_update = []
@@ -56,5 +46,4 @@ class Schedule(ScoreSheet):
         format_cell_ranges(self.worksheet, batch_update)
     
     def set_schedule_df(self):
-        print(self.pandas_df['Spread'])
         set_with_dataframe(self.worksheet, self.pandas_df, row=4, col=1)

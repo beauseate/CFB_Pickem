@@ -45,5 +45,7 @@ class CFBD_API():
         return [{'home_points': attr.home_points, 'away_points': attr.away_points} for attr in game_data][0]
     
     def get_game_spread(self, week, away_team, home_team):
-        print(self.betting_api.get_lines(year=self.year, week=week, away=away_team, home=home_team)[0].lines[0].formatted_spread)
-        return self.betting_api.get_lines(year=self.year, week=week, away=away_team, home=home_team)[0].lines[0].formatted_spread
+        lines = self.betting_api.get_lines(year=self.year, week=week, away=away_team, home=home_team)[0].lines
+        if lines:
+            return lines[0].formatted_spread
+        return 'N/A'
