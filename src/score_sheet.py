@@ -63,3 +63,10 @@ class ScoreSheet(Sheet):
         for matchup, spread in zip(this_weeks_matchups, this_weeks_spreads):
             this_week_spread_mask = self.get_this_week_mask(matchup['Away Team'], matchup['Home Team'])
             self.pandas_df.loc[this_week_spread_mask, 'Spread'] = spread
+    
+    def get_total_games_played(self, games_completed_this_week):
+        number_of_games_completed_this_week = len(games_completed_this_week)
+        total_games_up_to_this_week = self.cfbd_api.get_total_games_up_to_this_week()
+        total_games_not_played = total_games_up_to_this_week - number_of_games_completed_this_week
+        total_games_played = total_games_up_to_this_week - total_games_not_played
+        return total_games_played

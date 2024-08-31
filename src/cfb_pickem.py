@@ -80,7 +80,10 @@ class CFBPickem():
                                                          next_weeks_matchups, next_weeks_spread)
 
         scoreboard = self.get_scoreboard()
-        scoreboard.update_scoreboard(scores_dict)
+        games_completed_this_week = [game_score for game_score in this_weeks_game_scores if game_score is not None]
+        total_games_played = schedule.get_total_games_played(games_completed_this_week)
+
+        scoreboard.update_scoreboard(scores_dict, total_games_played)
         
         print("Updated this weeks scores successfully!")
 

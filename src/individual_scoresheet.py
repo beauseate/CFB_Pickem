@@ -24,15 +24,16 @@ class IndividualScoreSheet(ScoreSheet):
         print(f"Updating {self.worksheet.title}'s individual score...")
         self.calc_week_score(matchups, game_scores)
 
-        self.set_individual_sheet_df()
+        self.save_individual_scoresheet()
         self.do_batch_update()
         print(f"Finished updating {self.worksheet.title}'s individual score!")
   
     def calc_week_score(self, matchups, game_scores):
         for matchup, game_score in zip(matchups, game_scores):
+            if not game_score:
+                continue
             score_mask = self.get_this_week_mask(matchup['Away Team'], matchup['Home Team'])
             row = self.pandas_df.loc[score_mask]
-
             home_points = game_score['home_points']
             away_points = game_score['away_points']
 

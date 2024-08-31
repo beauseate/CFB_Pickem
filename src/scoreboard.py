@@ -14,7 +14,7 @@ class Scoreboard(ScoreSheet):
         values = self.worksheet.get_all_values()
         self.pandas_df = pd.DataFrame(values)
 
-    def update_scoreboard(self, scores_dict):
+    def update_scoreboard(self, scores_dict, total_games_up_to_this_week):
         week = self.cfbd_api.week
 
         last_weeks_score = self.get_week_score_df(week - 1)
@@ -24,7 +24,7 @@ class Scoreboard(ScoreSheet):
             this_weeks_score['Total Points'] = this_weeks_score[f'Week {week} Points']
         else:
             this_weeks_score = self.add_total_score_to_scoreboard(this_weeks_score, last_weeks_score)
-        this_weeks_score = self.add_accuracy_score_to_scoreboard(this_weeks_score)
+        this_weeks_score = self.add_accuracy_score_to_scoreboard(this_weeks_score, total_games_up_to_this_week)
         self.set_score_sheet_scores(this_weeks_score)
 
     def add_week_score_to_scoreboard(self, weeks_score, scores_dict):
@@ -45,10 +45,11 @@ class Scoreboard(ScoreSheet):
 
         return this_weeks_score
 
-    def add_accuracy_score_to_scoreboard(self, weeks_score):
+    def add_accuracy_score_to_scoreboard(self, weeks_score, total_games_up_to_this_week):
+        print(total_games_up_to_this_week)
         for index, row in weeks_score.iterrows():
             total_points = int(row[f'Total Points'])
-            accuracy = '{:.2%}'.format(total_points / self.cfbd_api.get_number_of_games_up_to_week())
+            accuracy = '{:.2%}'.format(total_points / total_games_up_to_this_week)
             weeks_score.at[index, 'Total Accuracy'] = accuracy
         return weeks_score
 

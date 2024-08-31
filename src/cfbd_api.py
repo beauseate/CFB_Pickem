@@ -27,7 +27,7 @@ class CFBD_API():
         self.year = year
         self.week = week
     
-    def get_number_of_games_up_to_week(self):
+    def get_total_games_up_to_this_week(self):
         total_games = 0
         for i in range(1, self.week+1):
             total_games += len(self.games_api.get_games(year=self.year, week=i, division='fbs'))
@@ -46,6 +46,8 @@ class CFBD_API():
     
     def get_game_score(self, away_team, home_team):
         game_data = self.get_game_data(away_team, home_team)
+        if not game_data[0].home_points:
+            return None
         return [{'home_points': attr.home_points, 'away_points': attr.away_points} for attr in game_data][0]
     
     def get_game_spread(self, week, away_team, home_team):
